@@ -83,7 +83,72 @@ CONSTRAINT fk_aluguelEquipamento_Aluguel FOREIGN KEY (idAluguel) REFERENCES alug
 
 SHOW TABLES;
 
-SELECT * FROM cliente
+SELECT
+f.nomefuncionario,
+f.cpf,
+DATE(a.datahoraretirada) AS dataAluguel,
+e.nomeEquipamento
+FROM funcionario f
+JOIN aluguel a
+   ON f.idfuncionario = a.idfuncionario
+JOIN  aluguelequipamento ae
+   ON ae.idAluguel = ae.idaluguel
+JOIN equipamento e
+   ON ae.idEquipamento = e.idequipamento;
+
+
+SELECT
+c.nomeCliente,
+c.cpf,
+DATE(a.dataHoraRetirada) AS dataPraia,
+f.nomeFuncionario
+FROM cliente c
+JOIN aluguel a
+   ON c.idCliente = a.idCliente
+JOIN funcionario f
+   ON a.idFuncionario = f.idFuncionario
+WHERE MONTH(a.dataHoraRetirada) = 12
+AND YEAR(a.dataHoraRetirada) = 2024
+ORDER BY a.dataHoraRetirada DESC;
+
+SELECT
+e.nomeEquipamento,
+SUM(ae.qtd) AS totalAlugado
+FROM equipamento e
+LEFT JOIN aluguelEquipamento ae
+   ON e.idEquipamento = ae.idEquipamento
+GROUP BY e.nomeEquipamento
+ORDER BY totalAlugado DESC;
+
+SELECT
+SUM(valorPago) AS arrecadacao
+FROM aluguel
+WHERE dataHoraRetirada BETWEEN '2024-12-25' AND '2024-12-31';
+
+
+UPDATE equipamento
+SET valorHora = valorHora * 1.10;
+
+SELECT
+formaPagamento,
+COUNT(*) AS quantidade
+FROM aluguel
+GROUP BY formaPagamento
+ORDER BY quantidade DESC;
+
+SELECT
+DATE(dataHoraRetirada) AS dia,
+SUM(valorPago) AS faturamento
+FROM aluguel
+WHERE MONTH(dataHoraRetirada) = 12
+AND YEAR(dataHoraRetirada) = 2024
+GROUP BY dia;
+
+DELETE FROM aluguelEquipamento
+WHERE idAluguel = 1;
+
+DELETE FROM aluguel
+WHERE idAluguel = 1;
 
 
 INSERT INTO cliente
@@ -115,7 +180,7 @@ VALUES
 
 
 INSERT INTO aluguel (idCliente, idFuncionario, dataHoraRetirada, dataHoraDevolucao, valorPago, pago) 
-VALUES (11, 1, '2024-12-08 10:00:00', '2024-12-08 18:00:00', 0.00, 0);
+VALUES (11, 1, '2024-11-08 10:00:00', '2024-11-08 19:00:00', 0.00, 0);
 INSERT INTO aluguelEquipamento (idEquipamento, idAluguel, valorItem, valorUnitario, qtd) 
 VALUES (1, LAST_INSERT_ID(), 2.00, 2.00, 1);
 UPDATE equipamento SET qtd = qtd - 1 WHERE idEquipamento = 1;
